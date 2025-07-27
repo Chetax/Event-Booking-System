@@ -18,10 +18,12 @@ public class EventController {
     public ResponseEntity<ApiResponseDTO<?>> getAllEvents(@RequestHeader(value = "Authorization", required = false) String authHeader) {
         return eventService.getAllEvents(authHeader);
     }
+
     @GetMapping("/id/{id}")
     public ResponseEntity<ApiResponseDTO<?>>  getEvent(@PathVariable Long id) {
         return eventService.getEventById(id);
     }
+
     @GetMapping("/tag/{tag}")
     public ResponseEntity<ApiResponseDTO<?>>  getEventByTag(@PathVariable String tag) {
         return eventService.getEventByTag(tag);

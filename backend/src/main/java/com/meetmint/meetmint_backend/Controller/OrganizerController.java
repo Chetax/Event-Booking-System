@@ -21,6 +21,7 @@ public class OrganizerController {
 
     private final EventCrudService eventService;
     private final TicketService ticketService;
+
     @PostMapping
     public ResponseEntity<ApiResponseDTO<?>> createEvent(@Valid @RequestBody EventRequestDto dto) {
         return eventService.createEvent(dto);

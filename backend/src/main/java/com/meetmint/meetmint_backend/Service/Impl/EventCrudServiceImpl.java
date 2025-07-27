@@ -39,7 +39,7 @@ public class EventCrudServiceImpl implements EventCrudService {
                     .success(false)
                     .message("Not Authorize to visit this route")
                     .build();
-            return ResponseEntity.ok(apiResponseDTO);
+            return ResponseEntity.status(401).body(apiResponseDTO);
         }
 
         User user = userRepository.findByEmail(customUserDetails.getUsername());
@@ -92,6 +92,8 @@ public class EventCrudServiceImpl implements EventCrudService {
     @Override
     public ResponseEntity<ApiResponseDTO<?>> getAllEvents(@RequestHeader(value = "Authorization", required = false) String authHeader) {
 
+
+
         List<EventResponseDto> events= eventRepository.findAll().stream()
                 .map(this::mapToDto)
                 .collect(Collectors.toList());
@@ -123,8 +125,7 @@ public class EventCrudServiceImpl implements EventCrudService {
 
     @Override
     public ResponseEntity<ApiResponseDTO<?>> updateEvent(Long id, EventRequestDto dto) {
-
-
+        CustomUserDetails customUserDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Optional<Event> optionalEvent = eventRepository.findById(id);
         if (optionalEvent.isEmpty()) {
             return ResponseEntity.status(404).body(ApiResponseDTO.builder()
@@ -135,6 +136,12 @@ public class EventCrudServiceImpl implements EventCrudService {
 
         Event event = optionalEvent.get();
 
+        if (event.getCreatedBy() == null || event.getCreatedBy().getId() != customUserDetails.getId()) {
+            return ResponseEntity.status(403).body(ApiResponseDTO.builder()
+                    .success(false)
+                    .message("You are not authorized to update this event")
+                    .build());
+        }
 
         if (dto.getTitle() != null) event.setTitle(dto.getTitle());
         if (dto.getDescription() != null) event.setDescription(dto.getDescription());
@@ -165,7 +172,23 @@ public class EventCrudServiceImpl implements EventCrudService {
     @Override
     public ResponseEntity<ApiResponseDTO<?>> deleteEvent(Long id) {
 
+        CustomUserDetails customUserDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (!eventRepository.existsById(id)) {
+            Optional<Event> optionalEvent = eventRepository.findById(id);
+            if (optionalEvent.isEmpty()) {
+                return ResponseEntity.status(401).body(ApiResponseDTO.builder()
+                        .success(false)
+                        .message("Not Authroize person to delete this event ")
+                        .build());
+            }
+
+            Event event = optionalEvent.get();
+            if (event.getCreatedBy() == null || event.getCreatedBy().getId() != customUserDetails.getId()) {
+                return ResponseEntity.status(403).body(ApiResponseDTO.builder()
+                        .success(false)
+                        .message("You are not authorized to update this event")
+                        .build());
+            }
 
             ApiResponseDTO<String> apiResponseDTO=ApiResponseDTO.<String>builder()
                     .success(false)
