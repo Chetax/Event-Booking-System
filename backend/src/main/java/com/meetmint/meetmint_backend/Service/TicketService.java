@@ -18,5 +18,6 @@ public interface TicketService {
     ResponseEntity<ApiResponseDTO<?>> getMyTickets();
     ResponseEntity<ApiResponseDTO<?>> getMyEventRegister();
     ResponseEntity<ApiResponseDTO<?>> deleteMyTicket(long id);
+
 }
 

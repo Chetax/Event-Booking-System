@@ -9,8 +9,9 @@ public interface UserService {
     ResponseEntity<ApiResponseDTO<?>> createUser(UserRequestDto requestDto);
     ResponseEntity<ApiResponseDTO<?>> getUserByEmailId(UserRequestDto emailAndPassword);
     ResponseEntity<ApiResponseDTO<?>> updateUser(Long id, UserRequestDto userRequestDto,String authHeader);
-    ResponseEntity<ApiResponseDTO<?>> deleteUser(Long id);
+    ResponseEntity<ApiResponseDTO<?>> deleteUser(Long id,String authHeader);
     ResponseEntity<ApiResponseDTO<?>> verifyUser(@RequestBody UserRequestDto loginRequest);
     ResponseEntity<ApiResponseDTO<?>> getMyBookings();
-
+    ResponseEntity<ApiResponseDTO<?>> getMyTicket(long id);
+    ResponseEntity<ApiResponseDTO<?>>getAllTicketByEventId(long id,String authHeader);
 }

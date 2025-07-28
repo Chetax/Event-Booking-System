@@ -31,8 +31,9 @@ public class EventCrudServiceImpl implements EventCrudService {
 
     @Override
     public ResponseEntity<ApiResponseDTO<?>> createEvent(EventRequestDto dto) {
-        CustomUserDetails customUserDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
+        CustomUserDetails customUserDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        System.out.println("\n\n\n\n\n\n\nEmail and role "+customUserDetails.getUsername()+" "+customUserDetails.getRole());
         boolean isOrganiser = customUserDetails.getRole();
         if (!isOrganiser) {
             ApiResponseDTO<String> apiResponseDTO = ApiResponseDTO.<String>builder()
@@ -111,12 +112,26 @@ public class EventCrudServiceImpl implements EventCrudService {
 
         Event event = eventRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Event not found"));
-        ApiResponseDTO<Event> apiResponseDTO=ApiResponseDTO.<Event>builder()
-                .success(true)
-                .message("sucessfully fetched")
-                .data(event)
+        EventResponseDto eventResponseDto = EventResponseDto.builder()
+                .id(event.getId())
+                .title(event.getTitle())
+                .description(event.getDescription())
+                .eventImageUrl(event.getEventImageUrl())
+                .ticketCount(event.getTicketCount())
+                .ticketBooked(event.getTicketBooked())
+                .tag(event.getTag())
+                .price(event.getPrice())
+                .startTime(event.getStartTime())
+                .endTime(event.getEndTime())
+                .createrEmail(event.getCreatedBy().getEmail())
+                .createdBy(event.getCreatedBy().getFirstName()+" "+event.getCreatedBy().getLastName()) // this line includes the user
                 .build();
 
+        ApiResponseDTO<EventResponseDto> apiResponseDTO = ApiResponseDTO.<EventResponseDto>builder()
+                .success(true)
+                .message("Successfully fetched")
+                .data(eventResponseDto)
+                .build();
         return ResponseEntity.ok(apiResponseDTO);
     }
 

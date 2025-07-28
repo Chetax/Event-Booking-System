@@ -1,10 +1,14 @@
 package com.meetmint.meetmint_backend.Service.Impl;
 
 import com.meetmint.meetmint_backend.CustomUserDetails;
+import com.meetmint.meetmint_backend.Dto.EventRequestDto;
 import com.meetmint.meetmint_backend.Dto.UserRequestDto;
 import com.meetmint.meetmint_backend.Dto.UserResponseDto;
 import com.meetmint.meetmint_backend.Dto.ApiResponseDTO;
+import com.meetmint.meetmint_backend.Model.Event;
+import com.meetmint.meetmint_backend.Model.Ticket;
 import com.meetmint.meetmint_backend.Model.User;
+import com.meetmint.meetmint_backend.Repository.EventRepository;
 import com.meetmint.meetmint_backend.Repository.TicketRepository;
 import com.meetmint.meetmint_backend.Repository.UserRepository;
 import com.meetmint.meetmint_backend.Service.JwtService;
@@ -22,6 +26,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import java.util.List;
+import java.util.Optional;
+
 @Service
 public class UserServiceImpl implements UserService {
 
@@ -31,18 +38,21 @@ public class UserServiceImpl implements UserService {
     private final JwtService jwtService;
     private final TicketRepository ticketRepository;
     private final TicketServiceImpl ticketService;
-
+    private final EventRepository eventRepository;
+    private final EventCrudServiceImpl eventCrudService;
 
     @Autowired
     AuthenticationManager authenticationManager;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, BCryptPasswordEncoder bCryptPasswordEncoder, JwtService jwtService, TicketRepository ticketRepository, TicketServiceImpl ticketService) {
+    public UserServiceImpl(UserRepository userRepository, BCryptPasswordEncoder bCryptPasswordEncoder, JwtService jwtService, TicketRepository ticketRepository, TicketServiceImpl ticketService, EventRepository eventRepository, EventCrudServiceImpl eventCrudService) {
         this.userRepository = userRepository;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.jwtService = jwtService;
         this.ticketRepository = ticketRepository;
         this.ticketService = ticketService;
+        this.eventRepository = eventRepository;
+        this.eventCrudService = eventCrudService;
     }
 
     @Override
@@ -161,8 +171,10 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ResponseEntity<ApiResponseDTO<?>> deleteUser(Long id) {
+    public ResponseEntity<ApiResponseDTO<?>> deleteUser(Long id, String authHeader) {
+
         if (!userRepository.existsById(id)) {
+
             ApiResponseDTO<String> wrongResponse = ApiResponseDTO.<String>builder()
                     .success(false)
                     .message("Database error while deleting user")
@@ -170,6 +182,16 @@ public class UserServiceImpl implements UserService {
 
             return ResponseEntity.status(500).body(wrongResponse);
         }
+        String token = authHeader.startsWith("Bearer ") ? authHeader.substring(7) : authHeader;
+        User newUser = userRepository.findById(id).get();
+        if (!jwtService.isValidToken(token, newUser.getEmail())) {
+            ApiResponseDTO<String> apiResponseDTO = ApiResponseDTO.<String>builder()
+                    .success(true)
+                    .message("Login First")
+                    .build();
+            return ResponseEntity.status(403).body(apiResponseDTO);
+        }
+
 
         userRepository.deleteById(id);
 
@@ -236,6 +258,55 @@ public class UserServiceImpl implements UserService {
             return ResponseEntity.status(503).body(response);
         }
     }
+
+    @Override
+    public ResponseEntity<ApiResponseDTO<?>> getMyTicket(long id) {
+        return null;
+    }
+
+    @Override
+    public ResponseEntity<ApiResponseDTO<?>>getAllTicketByEventId(long id,String authHeader){
+         try
+         {
+             Optional<Event> event=eventRepository.findById(id);
+             if(event.isEmpty()){
+                 ApiResponseDTO<String> apiResponseDTO = ApiResponseDTO.<String>builder()
+                         .success(true)
+                         .message("Event Not Found")
+                         .build();
+                 return ResponseEntity.status(404).body(apiResponseDTO);
+             }
+
+             String createEmail=event.get().getCreatedBy().getEmail();
+             String token = authHeader.startsWith("Bearer ") ? authHeader.substring(7) : authHeader;
+             if (!jwtService.isValidToken(token,createEmail)){
+                 ApiResponseDTO<String> apiResponseDTO = ApiResponseDTO.<String>builder()
+                         .success(false)
+                         .message("Not Authorized Person")
+                         .build();
+                 return ResponseEntity.status(403).body(apiResponseDTO);
+             }
+
+             List<Ticket> tickets=ticketRepository.findByEventId(id);
+             ApiResponseDTO<List<Ticket>> apiResponseDTO = ApiResponseDTO.<List<Ticket>>builder()
+                     .success(true)
+                     .message("ALl tickets are fetched")
+                     .data(tickets)
+                     .build();
+             return ResponseEntity.status(200).body(apiResponseDTO);
+
+         }catch (Exception e)
+         {
+             e.printStackTrace();
+             ApiResponseDTO<String> response = ApiResponseDTO.<String>builder()
+                     .success(false)
+                     .message(e.getMessage())
+                     .data(null)
+                     .build();
+             return ResponseEntity.status(503).body(response);
+         }
+    }
+
 
 
 }

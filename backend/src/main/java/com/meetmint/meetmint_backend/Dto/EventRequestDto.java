@@ -17,6 +17,7 @@ public class EventRequestDto {
     private String description;
     private String eventImageUrl;
     private String tag;
+
     private Integer ticketCount;
     private Integer ticketBooked;
     private Double price;

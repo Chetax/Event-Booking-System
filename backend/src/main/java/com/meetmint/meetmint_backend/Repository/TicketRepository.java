@@ -10,4 +10,5 @@ import java.util.List;
 public interface TicketRepository extends JpaRepository<Ticket, Long> {
    List<Ticket> findByHolderEmail(String email);
    List<Ticket> findByHolderEmailOrderByCreatedAtDesc(String email);
+   List<Ticket> findByEventId(Long eventId);
 }

@@ -4,6 +4,7 @@ import com.meetmint.meetmint_backend.Dto.EventRequestDto;
 import com.meetmint.meetmint_backend.Dto.EventResponseDto;
 import com.meetmint.meetmint_backend.Dto.ApiResponseDTO;
 import com.meetmint.meetmint_backend.Service.EventCrudService;
+import com.meetmint.meetmint_backend.Service.Impl.UserServiceImpl;
 import com.meetmint.meetmint_backend.Service.TicketService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,9 +22,10 @@ public class OrganizerController {
 
     private final EventCrudService eventService;
     private final TicketService ticketService;
+    private final UserServiceImpl  userService;
 
     @PostMapping
-    public ResponseEntity<ApiResponseDTO<?>> createEvent(@Valid @RequestBody EventRequestDto dto) {
+    public ResponseEntity<ApiResponseDTO<?>> createEvent( @RequestBody EventRequestDto dto) {
         return eventService.createEvent(dto);
     }
 
@@ -45,6 +47,11 @@ public class OrganizerController {
     @PutMapping("/{id}")
     public  ResponseEntity<ApiResponseDTO<?>> updateEvent(@PathVariable Long id, @Valid @RequestBody EventRequestDto dto) {
         return eventService.updateEvent(id, dto);
+    }
+
+    @GetMapping("/getAllTicketByEventId/{id}")
+    public ResponseEntity<ApiResponseDTO<?>> getAllTicketByEventId(@PathVariable long id,@RequestHeader("Authorization") String authHeader){
+        return userService.getAllTicketByEventId(id,authHeader);
     }
 
 }

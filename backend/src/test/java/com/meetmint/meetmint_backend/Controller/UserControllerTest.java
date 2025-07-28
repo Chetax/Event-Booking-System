@@ -245,17 +245,16 @@ public class UserControllerTest {
     @WithMockUser(username = "chetax@consultadd.com", roles = {"USER"})
     void testUpdateUser() throws Exception {
         Long userId = 1L;
+        String authHeader = "Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjp0cnVlLCJzdWIiOiJkb2phQGNvbnN1bHRhZGQuY29tIiwiaXNzIjoiRG9qYSBDYXQiLCJpYXQiOjE3NTM2Nzg3MTksImV4cCI6MTc1MzY4MDUxOX0.VTxLvQxkaTX6NJ2tPAUcOkBAHFz5A5ERtoRiPFlSYAg";
 
-        // Prepare valid input DTO
         UserRequestDto updateUserDto = UserRequestDto.builder()
                 .firstName("Updated")
                 .lastName("User")
                 .email("updated@example.com")
-                .password("newpass123")  // Ensure it passes validation rules
+                .password("newpass123")
                 .Organiser(true)
                 .build();
 
-        // Mocked updated User response
         User updatedUser = User.builder()
                 .id(userId)
                 .firstName("Updated")
@@ -272,16 +271,14 @@ public class UserControllerTest {
 
         ResponseEntity<ApiResponseDTO<?>> responseEntity = ResponseEntity.ok(apiResponse);
 
-        // Mock the service layer
         Mockito.when(userService.updateUser(
                         Mockito.eq(userId),
                         Mockito.any(UserRequestDto.class),
                         Mockito.anyString()))
                 .thenReturn(responseEntity);
 
-        // Perform the PUT request
         mockMvc.perform(put("/api/users/{id}", userId)
-                        .header("Authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyQGVtYWlsLmNvbSIsImlhdCI6MTY5NzA0OTg0MCwiZXhwIjoxNjk3MDUzNDQwfQ.sEo7zUPI_G1L1S9HMy0ZkG1vF1yhsKLF6S0YH-HguWI")
+                        .header("Authorization", authHeader)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updateUserDto)))
                 .andExpect(status().isOk())
@@ -291,9 +288,8 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$.data.firstName").value("Updated"))
                 .andExpect(jsonPath("$.data.email").value("updated@example.com"));
 
-        // Verify service call
         Mockito.verify(userService, Mockito.times(1))
-                .updateUser(Mockito.eq(userId), Mockito.any(UserRequestDto.class), Mockito.anyString());
+                .updateUser(Mockito.eq(userId), Mockito.any(UserRequestDto.class), Mockito.eq(authHeader));
     }
 
 
@@ -302,6 +298,7 @@ public class UserControllerTest {
     @WithMockUser(username = "chetax@consultadd.com", roles = {"USER"})
     void testDeleteUser() throws Exception {
         Long userId = 1L;
+        String authHeader = "Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjp0cnVlLCJzdWIiOiJkb2phQGNvbnN1bHRhZGQuY29tIiwiaXNzIjoiRG9qYSBDYXQiLCJpYXQiOjE3NTM2Nzg3MTksImV4cCI6MTc1MzY4MDUxOX0.VTxLvQxkaTX6NJ2tPAUcOkBAHFz5A5ERtoRiPFlSYAg";
 
         ApiResponseDTO<String> apiResponse = ApiResponseDTO.<String>builder()
                 .success(true)
@@ -311,15 +308,18 @@ public class UserControllerTest {
 
         ResponseEntity<ApiResponseDTO<?>> responseEntity = ResponseEntity.ok(apiResponse);
 
-        Mockito.when(userService.deleteUser(Mockito.eq(userId))).thenReturn(responseEntity);
+        // Mock the method with both arguments
+        Mockito.when(userService.deleteUser(Mockito.eq(userId), Mockito.eq(authHeader))).thenReturn(responseEntity);
 
-        mockMvc.perform(delete("/api/users/{id}", userId))
+        mockMvc.perform(delete("/api/users/{id}", userId)
+                        .header("Authorization", authHeader)) // Include authHeader in the request
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.message").value("User deleted successfully"))
                 .andExpect(jsonPath("$.data").doesNotExist());
 
-        Mockito.verify(userService, Mockito.times(1)).deleteUser(Mockito.eq(userId));
+        Mockito.verify(userService, Mockito.times(1)).deleteUser(Mockito.eq(userId), Mockito.eq(authHeader));
     }
+
 }
 

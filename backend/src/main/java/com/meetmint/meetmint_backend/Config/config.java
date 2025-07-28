@@ -31,6 +31,7 @@ import java.util.List;
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity(prePostEnabled = true)
+
 public class config {
 
     private final UserDetailsService userDetailsService;

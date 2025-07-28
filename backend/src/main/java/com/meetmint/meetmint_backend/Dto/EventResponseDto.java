@@ -1,5 +1,6 @@
 package com.meetmint.meetmint_backend.Dto;
 
+import com.meetmint.meetmint_backend.Model.User;
 import lombok.Builder;
 import lombok.Data;
 
@@ -15,8 +16,10 @@ public class EventResponseDto {
     private int ticketCount;
     private int ticketBooked;
     private String tag;
+
     private double price;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
-
+    private String createdBy;
+    private String createrEmail;
 }

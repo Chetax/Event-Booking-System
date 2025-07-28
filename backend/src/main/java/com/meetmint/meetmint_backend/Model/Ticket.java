@@ -25,6 +25,7 @@ public class Ticket {
     @NotBlank
     private String holderName;
 
+    
     @Email
     private String holderEmail;
 

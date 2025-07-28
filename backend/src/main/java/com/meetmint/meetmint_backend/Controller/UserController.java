@@ -64,10 +64,9 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
-    public  ResponseEntity<ApiResponseDTO<?>>deleteUser(@PathVariable Long id) {
-        return  userService.deleteUser(id);
+    public  ResponseEntity<ApiResponseDTO<?>>deleteUser(@PathVariable Long id,@RequestHeader("Authorization") String authHeader) {
+        return  userService.deleteUser(id,authHeader);
     }
-
 
 
 }
