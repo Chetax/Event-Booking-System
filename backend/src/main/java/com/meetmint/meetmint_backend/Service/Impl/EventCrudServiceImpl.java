@@ -62,7 +62,6 @@ public class EventCrudServiceImpl implements EventCrudService {
 
         try {
             Event saved = eventRepository.save(event);
-
             // Optionally add event to user's event list (maintain both sides)
             if (user.getEvents() == null) {
                 user.setEvents(new ArrayList<>());
@@ -86,8 +85,6 @@ public class EventCrudServiceImpl implements EventCrudService {
             return ResponseEntity.status(403).body(apiResponseDTO);
         }
     }
-
-
 
     @Override
     public ResponseEntity<ApiResponseDTO<?>> getAllEvents(@RequestHeader(value = "Authorization", required = false) String authHeader) {
@@ -214,8 +211,6 @@ public ResponseEntity<ApiResponseDTO<?>> getEventByTag(@PathVariable String tag)
             .build();
     return ResponseEntity.status(200).body(apiResponseDTO);
 }
-
-
 
     private EventResponseDto mapToDto(Event event) {
         return EventResponseDto.builder()

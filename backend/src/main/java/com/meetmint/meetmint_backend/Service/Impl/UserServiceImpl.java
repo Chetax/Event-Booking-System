@@ -73,10 +73,10 @@ public class UserServiceImpl implements UserService {
 
             ApiResponseDTO<User> apiResponseDTO= ApiResponseDTO.<User>builder()
                     .success(true)
-                    .message("User Created Success")
+                    .message("User registered successfully")
                     .data(savedUser)
                     .build();
-            return ResponseEntity.ok().body(apiResponseDTO);
+            return ResponseEntity.status(HttpStatus.CREATED).body(apiResponseDTO);
 
 
         }catch (Exception e){
@@ -92,33 +92,33 @@ public class UserServiceImpl implements UserService {
     }
 
 
-  @Override
-  public ResponseEntity<ApiResponseDTO<?>> getUserByEmailId(UserRequestDto emailPassword) {
-      User user = userRepository.findByEmail(emailPassword.getEmail());
+    @Override
+    public ResponseEntity<ApiResponseDTO<?>> getUserByEmailId(UserRequestDto emailPassword) {
+        User user = userRepository.findByEmail(emailPassword.getEmail());
 
-      if (user == null || !user.getPassword().equals(emailPassword.getPassword())) {
-          ApiResponseDTO<String> apiResponseDTO= ApiResponseDTO.<String>builder()
-                  .success(true)
-                  .message("User Not found")
-                  .build();
-          return ResponseEntity.status(403).body(apiResponseDTO);
-      }
+        if (user == null || !user.getPassword().equals(emailPassword.getPassword())) {
+            ApiResponseDTO<String> apiResponseDTO = ApiResponseDTO.<String>builder()
+                    .success(true)
+                    .message("User Not found")
+                    .build();
+            return ResponseEntity.status(403).body(apiResponseDTO);
+        }
 
-      UserResponseDto responseDto = UserResponseDto.builder()
-              .id(user.getId())
-              .firstName(user.getFirstName())
-              .lastName(user.getLastName())
-              .isOrganiser(user.isOrganiser())
-              .profilePhotoUrl(user.getProfilePhotoUrl())
-              .email(user.getEmail())
-              .build();
-      ApiResponseDTO<User> apiResponseDTO= ApiResponseDTO.<User>builder()
-              .success(true)
-              .message("Success")
-              .data(user)
-              .build();
-      return ResponseEntity.ok().body(apiResponseDTO);
-  }
+        UserResponseDto responseDto = UserResponseDto.builder()
+                .id(user.getId())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .isOrganiser(user.isOrganiser())
+                .profilePhotoUrl(user.getProfilePhotoUrl())
+                .email(user.getEmail())
+                .build();
+        ApiResponseDTO<User> apiResponseDTO = ApiResponseDTO.<User>builder()
+                .success(true)
+                .message("Success")
+                .data(user)
+                .build();
+        return ResponseEntity.ok().body(apiResponseDTO);
+    }
 
 
     @Override
@@ -136,7 +136,8 @@ public class UserServiceImpl implements UserService {
 
             if (userRequestDto.getFirstName() != null) newUser.setFirstName(userRequestDto.getFirstName());
             if (userRequestDto.getLastName() != null) newUser.setLastName(userRequestDto.getLastName());
-            if (userRequestDto.getProfilePhotoUrl() != null) newUser.setProfilePhotoUrl(userRequestDto.getProfilePhotoUrl());
+            if (userRequestDto.getProfilePhotoUrl() != null)
+                newUser.setProfilePhotoUrl(userRequestDto.getProfilePhotoUrl());
             if (userRequestDto.getEmail() != null) newUser.setEmail(userRequestDto.getEmail());
             if (userRequestDto.getPassword() != null) {
                 newUser.setPassword(bCryptPasswordEncoder.encode(userRequestDto.getPassword()));
@@ -162,7 +163,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public ResponseEntity<ApiResponseDTO<?>> deleteUser(Long id) {
         if (!userRepository.existsById(id)) {
-            ApiResponseDTO<String> wrongResponse= ApiResponseDTO.<String>builder()
+            ApiResponseDTO<String> wrongResponse = ApiResponseDTO.<String>builder()
                     .success(false)
                     .message("Database error while deleting user")
                     .build();
@@ -170,9 +171,9 @@ public class UserServiceImpl implements UserService {
             return ResponseEntity.status(500).body(wrongResponse);
         }
 
-          userRepository.deleteById(id);
+        userRepository.deleteById(id);
 
-        ApiResponseDTO<String> apiResponseDTO= ApiResponseDTO.<String>builder()
+        ApiResponseDTO<String> apiResponseDTO = ApiResponseDTO.<String>builder()
                 .success(true)
                 .message("User Account is Delete ")
                 .build();

@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:4200")
+@CrossOrigin(origins = "http://localhost:5173/")
 @RequestMapping("/api/organizer/events")
 @RequiredArgsConstructor
 
@@ -32,10 +32,10 @@ public class OrganizerController {
         return eventService.getAllEvents(authHeader);
     }
 
-@GetMapping("/getMyRegister")
-public  ResponseEntity<ApiResponseDTO<?>>getMyEventRegister(){
+    @GetMapping("/getMyRegister")
+    public  ResponseEntity<ApiResponseDTO<?>>getMyEventRegister(){
         return ticketService.getMyEventRegister();
-}
+    }
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponseDTO<?>>  getEvent(@PathVariable Long id) {
@@ -43,13 +43,8 @@ public  ResponseEntity<ApiResponseDTO<?>>getMyEventRegister(){
     }
 
     @PutMapping("/{id}")
-    public     ResponseEntity<ApiResponseDTO<?>> updateEvent(@PathVariable Long id, @Valid @RequestBody EventRequestDto dto) {
+    public  ResponseEntity<ApiResponseDTO<?>> updateEvent(@PathVariable Long id, @Valid @RequestBody EventRequestDto dto) {
         return eventService.updateEvent(id, dto);
     }
 
-
-    @DeleteMapping("/{id}")
-    public void deleteEvent(@PathVariable Long id) {
-        eventService.deleteEvent(id);
-    }
 }

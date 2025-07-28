@@ -9,7 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:4200")
+@CrossOrigin(origins = "http://localhost:5173/")
 @RequestMapping("/api/ticket")
 @RequiredArgsConstructor
 public class TicketController {
@@ -44,6 +44,11 @@ public class TicketController {
     @GetMapping("/recentBooking")
     public ResponseEntity<ApiResponseDTO<?>> getMyRecentTicketBooking(){
         return ticketService.getMyTickets();
+    }
+
+    @DeleteMapping("/cancelMyBooking/{id}")
+    public ResponseEntity<ApiResponseDTO<?>> cancelMyTicket(@PathVariable long id){
+     return ticketService.deleteMyTicket(id);
     }
 
 

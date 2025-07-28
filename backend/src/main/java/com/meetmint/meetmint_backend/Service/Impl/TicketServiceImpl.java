@@ -10,11 +10,13 @@ import com.meetmint.meetmint_backend.Repository.EventRepository;
 import com.meetmint.meetmint_backend.Repository.TicketRepository;
 import com.meetmint.meetmint_backend.Repository.UserRepository;
 import com.meetmint.meetmint_backend.Service.TicketService;
+import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
@@ -183,6 +185,56 @@ public class TicketServiceImpl implements TicketService {
                 .data(events)
                 .build();
         return ResponseEntity.ok(apiResponseDTO);
+    }
+    @Override
+    @Transactional
+    public ResponseEntity<ApiResponseDTO<?>> deleteMyTicket(long id) {
+        try {
+            Optional<Ticket> ticketOpt = ticketRepository.findById(id);
+            if (ticketOpt.isEmpty()) {
+                return ResponseEntity.status(404).body(
+                        ApiResponseDTO.<String>builder()
+                                .success(false)
+                                .message("Ticket not exists")
+                                .build()
+                );
+            }
+
+            Ticket ticket = ticketOpt.get();
+            Event event = ticket.getEvent();
+            if (event == null) {
+                return ResponseEntity.status(404).body(
+                        ApiResponseDTO.<String>builder()
+                                .success(false)
+                                .message("Event not found for ticket")
+                                .build()
+                );
+            }
+
+            event.setTicketBooked(Math.max(0, event.getTicketBooked() - 1));
+            eventRepository.save(event);
+
+            // Detach relationships to avoid foreign key issues
+            ticket.setEvent(null);
+            ticket.setUser(null);
+            ticketRepository.save(ticket); // Save before delete (safe)
+            ticketRepository.delete(ticket);
+
+            return ResponseEntity.ok(
+                    ApiResponseDTO.<String>builder()
+                            .success(true)
+                            .message("Booking deleted successfully")
+                            .build()
+            );
+
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(
+                    ApiResponseDTO.<String>builder()
+                            .success(false)
+                            .message("Internal error: " + e.getMessage())
+                            .build()
+            );
+        }
     }
 
 

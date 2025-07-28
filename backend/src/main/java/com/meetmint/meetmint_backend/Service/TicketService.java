@@ -17,5 +17,6 @@ public interface TicketService {
     ResponseEntity<ApiResponseDTO<?>> checkTicketAvailibilityByEventId(@PathVariable long id);
     ResponseEntity<ApiResponseDTO<?>> getMyTickets();
     ResponseEntity<ApiResponseDTO<?>> getMyEventRegister();
+    ResponseEntity<ApiResponseDTO<?>> deleteMyTicket(long id);
 }
 
