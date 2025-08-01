@@ -31,10 +31,11 @@ public class UserController {
     @Autowired
     private AuthenticationManager authenticationManager;
 
-    @GetMapping("/getHome")
-        public String getHome(){
-          return "Welcome tiino home" ;
-        }
+    @GetMapping("/me")
+    public ResponseEntity<ApiResponseDTO<?>> getCurrentUser(@RequestHeader("Authorization") String authHeader) {
+        return userService.getCurrentUser(authHeader);
+    }
+
 
     @PostMapping("/register")
     public ResponseEntity<ApiResponseDTO<?>>createUser(@Valid @RequestBody UserRequestDto userRequestDto) {
@@ -59,15 +60,15 @@ public class UserController {
 
 
     @PutMapping("/{id}")
+
     public ResponseEntity<ApiResponseDTO<?>>updateUser(@PathVariable Long id,@RequestBody @Valid UserRequestDto oldUser,@RequestHeader("Authorization") String authHeader) {
         return userService.updateUser(id,oldUser,authHeader);
     }
 
     @DeleteMapping("/{id}")
-    public  ResponseEntity<ApiResponseDTO<?>>deleteUser(@PathVariable Long id) {
-        return  userService.deleteUser(id);
+    public  ResponseEntity<ApiResponseDTO<?>>deleteUser(@PathVariable Long id,@RequestHeader("Authorization") String authHeader) {
+        return  userService.deleteUser(id,authHeader);
     }
-
 
 
 }

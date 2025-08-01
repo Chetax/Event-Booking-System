@@ -8,7 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:4200")
+@CrossOrigin(origins = "http://localhost:5173/")
 @RequestMapping("/api/event")
 @RequiredArgsConstructor
 public class EventController {
@@ -18,14 +18,18 @@ public class EventController {
     public ResponseEntity<ApiResponseDTO<?>> getAllEvents(@RequestHeader(value = "Authorization", required = false) String authHeader) {
         return eventService.getAllEvents(authHeader);
     }
-    @GetMapping("/id/{id}")
+
+    @GetMapping("/{id}")
     public ResponseEntity<ApiResponseDTO<?>>  getEvent(@PathVariable Long id) {
         return eventService.getEventById(id);
     }
+
     @GetMapping("/tag/{tag}")
     public ResponseEntity<ApiResponseDTO<?>>  getEventByTag(@PathVariable String tag) {
         return eventService.getEventByTag(tag);
     }
+
+
 
 
 }

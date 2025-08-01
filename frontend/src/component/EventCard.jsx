@@ -26,7 +26,7 @@ const EventCard = ({ id, title, date, location, price, image ,totalTickets ,tick
           {title}
         </h3>
 
-        <div className="flex items-center text-sm text-gray-600 mb-1">
+        <div className="flex items-center text-sm text-gray-600 mb-3">
           <CalendarIcon className="w-4 h-4 mr-1 text-gray-500" />
           <span>{date}</span>
         </div>

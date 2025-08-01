@@ -6,11 +6,11 @@ const slides = [
     title: "Corporate Networking Night",
   },
   {
-    url: "https://teamorange.in/wp-content/uploads/2023/04/Corporate-Event-Organisers.jpg",
+    url: "https://storage.googleapis.com/techsauce-prod/ugc/uploads/2024/4/1713844557_1692263684_S__13025327_0_%282%29.jpg",
     title: "Annual Business Meet",
   },
   {
-    url: "https://www.globalnexus.biz/wp-content/uploads/2017/08/Product-Launch-Event.jpg",
+    url: "https://storage.googleapis.com/techsauce-prod/ugc/uploads/2024/4/1713844742_1713519069_highlights-1_%281%29.jpeg",
     title: "Product Launch Showcase",
   },
   {

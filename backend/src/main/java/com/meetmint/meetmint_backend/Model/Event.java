@@ -26,6 +26,7 @@ public class Event {
     @NotBlank
     private String title;
 
+
     @NotBlank
     private String description ;
     private String eventImageUrl ;
@@ -41,6 +42,9 @@ public class Event {
 
     @DecimalMin("0.0")
     private Double price ;
+
+    @NotBlank
+    private String location;
 
     @FutureOrPresent
     private LocalDateTime startTime ;

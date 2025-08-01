@@ -3,6 +3,8 @@ import { Routes, Route } from 'react-router-dom';
 import Navbar from './component/Navbar';
 import Footer from './component/Footer';
 import Profile from './component/Profile';
+import ProtectedRoute from './component/ProtectedRoute';
+
 
 const HeroSection = lazy(() => import('./component/HeroSection'));
 const EventPool = lazy(() => import('./component/EventPool'));
@@ -11,6 +13,8 @@ const SearchPage = lazy(() => import('./component/SearchPage'));
 const BookingPage = lazy(() => import('./component/BookingPage'));
 const LoginPage = lazy(() => import('./component/Login'));
 const SignupPage = lazy(() => import('./component/Signup'));
+const CreateEvent = lazy(() => import('./component/CreateEvent'));
+
 
 const Loading = () => (
   <div className="flex justify-center items-center h-screen">
@@ -67,12 +71,22 @@ const App = () => {
                   </>
                 }
               />
-              <Route
+              {/* <Route
                 path="/events/:id"
                 element={
                   <section aria-label="Event Details">
                     <EventPage />
                   </section>
+                }
+              /> */}
+              <Route
+                path="/events/:id"
+                element={
+                  <ProtectedRoute>
+                    <section aria-label="Event Details">
+                      <EventPage />
+                    </section>
+                  </ProtectedRoute>
                 }
               />
               <Route
@@ -83,14 +97,26 @@ const App = () => {
                   </section>
                 }
               />
-              <Route
+              {/* <Route
                 path="/book/:id"
                 element={
                   <section aria-label="Booking Page">
                     <BookingPage />
                   </section>
                 }
+              /> */}
+
+              <Route
+                path="/book/:id"
+                element={
+                  <ProtectedRoute>
+                    <section aria-label="Booking Page">
+                      <BookingPage />
+                    </section>
+                  </ProtectedRoute>
+                }
               />
+
               <Route
                 path="/login"
                 element={
@@ -107,14 +133,37 @@ const App = () => {
                   </section>
                 }
               />
-                  <Route
+                  {/* <Route
                 path="/profile"
                 element={
                   <section aria-label="Profile page">
                     <Profile />
                   </section>
                 }
+              /> */}
+
+              <Route
+                path="/profile"
+                element={
+                  <ProtectedRoute>
+                    <section aria-label="Profile Page">
+                      <Profile />
+                    </section>
+                  </ProtectedRoute>
+                }
               />
+                     <Route
+                              path="/create-event"
+                              element={
+                                <ProtectedRoute>
+                                  <section aria-label="Create event Page">
+                                    <CreateEvent />
+                                  </section>
+                                </ProtectedRoute>
+                              }
+                            />
+
+
               <Route
                 path="*"
                 element={

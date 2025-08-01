@@ -1,5 +1,6 @@
 package com.meetmint.meetmint_backend.Dto;
 
+import com.meetmint.meetmint_backend.Model.User;
 import lombok.Builder;
 import lombok.Data;
 
@@ -18,5 +19,7 @@ public class EventResponseDto {
     private double price;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
-
+    private String createdBy;
+    private String location;
+    private String createrEmail;
 }

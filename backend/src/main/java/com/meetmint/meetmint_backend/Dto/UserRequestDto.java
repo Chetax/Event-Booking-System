@@ -16,5 +16,5 @@ public class UserRequestDto {
     private String email;
     private String password;
     private String profilePhotoUrl;
-    private boolean isOrganiser;
+    private boolean Organiser;
 }

@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 @Data
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -16,9 +17,12 @@ public class EventRequestDto {
     private String description;
     private String eventImageUrl;
     private String tag;
+
     private Integer ticketCount;
+    private String location;
     private Integer ticketBooked;
     private Double price;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
 }
+

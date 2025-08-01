@@ -40,6 +40,10 @@ const Login = () => {
 
       toast.success('Login successful!');
       Cookies.set('auth_token', token, { expires: 7 }); // Store token
+      localStorage.setItem("userId", data.data.id);
+      console.log("Login Response:", data);
+
+
 
       navigate('/'); // Redirect to home page
     } catch (error) {

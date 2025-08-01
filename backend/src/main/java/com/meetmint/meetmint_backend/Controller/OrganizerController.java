@@ -1,16 +1,20 @@
 package com.meetmint.meetmint_backend.Controller;
 
 import com.meetmint.meetmint_backend.Dto.EventRequestDto;
+import com.meetmint.meetmint_backend.Dto.EventResponseDto;
 import com.meetmint.meetmint_backend.Dto.ApiResponseDTO;
 import com.meetmint.meetmint_backend.Service.EventCrudService;
+import com.meetmint.meetmint_backend.Service.Impl.UserServiceImpl;
 import com.meetmint.meetmint_backend.Service.TicketService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
-@CrossOrigin(origins = "http://localhost:4200")
+@CrossOrigin(origins = "http://localhost:5173/")
 @RequestMapping("/api/organizer/events")
 @RequiredArgsConstructor
 
@@ -18,8 +22,10 @@ public class OrganizerController {
 
     private final EventCrudService eventService;
     private final TicketService ticketService;
+    private final UserServiceImpl  userService;
+
     @PostMapping
-    public ResponseEntity<ApiResponseDTO<?>> createEvent(@Valid @RequestBody EventRequestDto dto) {
+    public ResponseEntity<ApiResponseDTO<?>> createEvent( @RequestBody EventRequestDto dto) {
         return eventService.createEvent(dto);
     }
 
@@ -28,10 +34,10 @@ public class OrganizerController {
         return eventService.getAllEvents(authHeader);
     }
 
-@GetMapping("/getMyRegister")
-public  ResponseEntity<ApiResponseDTO<?>>getMyEventRegister(){
+    @GetMapping("/getMyRegister")
+    public  ResponseEntity<ApiResponseDTO<?>>getMyEventRegister(){
         return ticketService.getMyEventRegister();
-}
+    }
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponseDTO<?>>  getEvent(@PathVariable Long id) {
@@ -39,13 +45,13 @@ public  ResponseEntity<ApiResponseDTO<?>>getMyEventRegister(){
     }
 
     @PutMapping("/{id}")
-    public     ResponseEntity<ApiResponseDTO<?>> updateEvent(@PathVariable Long id, @Valid @RequestBody EventRequestDto dto) {
+    public  ResponseEntity<ApiResponseDTO<?>> updateEvent(@PathVariable Long id, @Valid @RequestBody EventRequestDto dto) {
         return eventService.updateEvent(id, dto);
     }
 
-
-    @DeleteMapping("/{id}")
-    public void deleteEvent(@PathVariable Long id) {
-        eventService.deleteEvent(id);
+    @GetMapping("/getAllTicketByEventId/{id}")
+    public ResponseEntity<ApiResponseDTO<?>> getAllTicketByEventId(@PathVariable long id,@RequestHeader("Authorization") String authHeader){
+        return userService.getAllTicketByEventId(id,authHeader);
     }
+
 }

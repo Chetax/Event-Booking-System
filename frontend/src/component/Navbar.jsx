@@ -4,10 +4,7 @@ import Profile from "./Profile";
 import Cookies from 'js-cookie';
 import { FaUserCircle } from 'react-icons/fa';
 import { FiLogOut } from 'react-icons/fi';
-
-
-
-
+import axios from "../utils/axiosInstance";
 
 const debounce = (func, wait) => {
   let timeout;
@@ -67,6 +64,22 @@ const Navbar = () => {
   // autocomplete searchbar 
   const [input , setInput] = useState("")
   const [results , setResults] = useState([])
+  const [events , setEvents] = useState([])
+
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const res = await axios.get('http://localhost:8080/api/event');
+        if (res.data.success) {
+          setEvents(res.data.data); // Store fetched events
+        }
+      } catch (error) {
+        console.error('Failed to fetch events:', error);
+      }
+    };
+
+    fetchEvents();
+  }, []);
 
   const fetchData = async () => {
     const dummyData = [
@@ -113,11 +126,11 @@ const Navbar = () => {
     ]
 
     if(input.length > 0 ){
-      // const data =  await fetch("http://localhost:5173/search?query=" + input);
+      // const data =  awaitaxios.get('http://localhost:8080/api/event');
       // const json = await data.json();
       // console.log(dummyData.filter(r => r.title.toLowerCase().includes(input.toLowerCase())));
       // SetResults(json);
-      const filteredData = dummyData.filter(r => r.title.toLowerCase().includes(input.toLowerCase()));
+      const filteredData = events.filter(r => r.title.toLowerCase().includes(input.toLowerCase()));
       if(filteredData.length > 0){
         setResults(filteredData);
       }else{

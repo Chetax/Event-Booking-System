@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 
 import java.util.ArrayList;
@@ -30,15 +31,17 @@ public class EventCrudServiceImpl implements EventCrudService {
 
     @Override
     public ResponseEntity<ApiResponseDTO<?>> createEvent(EventRequestDto dto) {
-        CustomUserDetails customUserDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
+        CustomUserDetails customUserDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        System.out.println("\n\n\n\n\n\n\nEmail and role "+customUserDetails.getUsername()+" "+customUserDetails.getRole());
         boolean isOrganiser = customUserDetails.getRole();
         if (!isOrganiser) {
             ApiResponseDTO<String> apiResponseDTO = ApiResponseDTO.<String>builder()
                     .success(false)
                     .message("Not Authorize to visit this route")
+
                     .build();
-            return ResponseEntity.ok(apiResponseDTO);
+            return ResponseEntity.status(401).body(apiResponseDTO);
         }
 
         User user = userRepository.findByEmail(customUserDetails.getUsername());
@@ -56,12 +59,12 @@ public class EventCrudServiceImpl implements EventCrudService {
                 .price(dto.getPrice())
                 .startTime(dto.getStartTime())
                 .endTime(dto.getEndTime())
+                .location(dto.getLocation())
                 .createdBy(user)
                 .build();
 
         try {
             Event saved = eventRepository.save(event);
-
             // Optionally add event to user's event list (maintain both sides)
             if (user.getEvents() == null) {
                 user.setEvents(new ArrayList<>());
@@ -86,10 +89,10 @@ public class EventCrudServiceImpl implements EventCrudService {
         }
     }
 
-
-
     @Override
     public ResponseEntity<ApiResponseDTO<?>> getAllEvents(@RequestHeader(value = "Authorization", required = false) String authHeader) {
+
+
 
         List<EventResponseDto> events= eventRepository.findAll().stream()
                 .map(this::mapToDto)
@@ -111,19 +114,32 @@ public class EventCrudServiceImpl implements EventCrudService {
 
         Event event = eventRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Event not found"));
-        ApiResponseDTO<Event> apiResponseDTO=ApiResponseDTO.<Event>builder()
-                .success(true)
-                .message("sucessfully fetched")
-                .data(event)
+        EventResponseDto eventResponseDto = EventResponseDto.builder()
+                .id(event.getId())
+                .title(event.getTitle())
+                .description(event.getDescription())
+                .eventImageUrl(event.getEventImageUrl())
+                .ticketCount(event.getTicketCount())
+                .ticketBooked(event.getTicketBooked())
+                .tag(event.getTag())
+                .price(event.getPrice())
+                .startTime(event.getStartTime())
+                .endTime(event.getEndTime())
+                .createrEmail(event.getCreatedBy().getEmail())
+                .createdBy(event.getCreatedBy().getFirstName()+" "+event.getCreatedBy().getLastName()) // this line includes the user
                 .build();
 
+        ApiResponseDTO<EventResponseDto> apiResponseDTO = ApiResponseDTO.<EventResponseDto>builder()
+                .success(true)
+                .message("Successfully fetched")
+                .data(eventResponseDto)
+                .build();
         return ResponseEntity.ok(apiResponseDTO);
     }
 
     @Override
     public ResponseEntity<ApiResponseDTO<?>> updateEvent(Long id, EventRequestDto dto) {
-
-
+        CustomUserDetails customUserDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Optional<Event> optionalEvent = eventRepository.findById(id);
         if (optionalEvent.isEmpty()) {
             return ResponseEntity.status(404).body(ApiResponseDTO.builder()
@@ -134,6 +150,12 @@ public class EventCrudServiceImpl implements EventCrudService {
 
         Event event = optionalEvent.get();
 
+        if (event.getCreatedBy() == null || event.getCreatedBy().getId() != customUserDetails.getId()) {
+            return ResponseEntity.status(403).body(ApiResponseDTO.builder()
+                    .success(false)
+                    .message("You are not authorized to update this event")
+                    .build());
+        }
 
         if (dto.getTitle() != null) event.setTitle(dto.getTitle());
         if (dto.getDescription() != null) event.setDescription(dto.getDescription());
@@ -144,6 +166,7 @@ public class EventCrudServiceImpl implements EventCrudService {
         if (dto.getEventImageUrl() != null) event.setEventImageUrl(dto.getEventImageUrl());
         if (dto.getTicketCount() != null) event.setTicketCount(dto.getTicketCount());
         if (dto.getTicketBooked() != null) event.setTicketBooked(dto.getTicketBooked());
+        if (dto.getLocation() != null) event.setLocation(dto.getLocation());
 
         try {
             Event updatedEvent = eventRepository.save(event);
@@ -164,7 +187,23 @@ public class EventCrudServiceImpl implements EventCrudService {
     @Override
     public ResponseEntity<ApiResponseDTO<?>> deleteEvent(Long id) {
 
+        CustomUserDetails customUserDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (!eventRepository.existsById(id)) {
+            Optional<Event> optionalEvent = eventRepository.findById(id);
+            if (optionalEvent.isEmpty()) {
+                return ResponseEntity.status(401).body(ApiResponseDTO.builder()
+                        .success(false)
+                        .message("Not Authroize person to delete this event ")
+                        .build());
+            }
+
+            Event event = optionalEvent.get();
+            if (event.getCreatedBy() == null || event.getCreatedBy().getId() != customUserDetails.getId()) {
+                return ResponseEntity.status(403).body(ApiResponseDTO.builder()
+                        .success(false)
+                        .message("You are not authorized to update this event")
+                        .build());
+            }
 
             ApiResponseDTO<String> apiResponseDTO=ApiResponseDTO.<String>builder()
                     .success(false)
@@ -191,8 +230,6 @@ public ResponseEntity<ApiResponseDTO<?>> getEventByTag(@PathVariable String tag)
     return ResponseEntity.status(200).body(apiResponseDTO);
 }
 
-
-
     private EventResponseDto mapToDto(Event event) {
         return EventResponseDto.builder()
                 .id(event.getId())
@@ -204,6 +241,7 @@ public ResponseEntity<ApiResponseDTO<?>> getEventByTag(@PathVariable String tag)
                 .price(event.getPrice())
                 .startTime(event.getStartTime())
                 .endTime(event.getEndTime())
+                .location(event.getLocation())
                 .build();
     }
 

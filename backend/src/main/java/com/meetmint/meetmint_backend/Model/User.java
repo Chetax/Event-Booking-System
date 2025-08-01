@@ -19,25 +19,18 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id ;
-
     @NotBlank
-
     private String firstName ;
     @NotBlank
     private String lastName ;
-
     @Email
     @Column(unique = true, nullable = false)
     private String email ;
-
     private String password ;
-
-    @Column(name = "organiser", nullable = false)
-    private boolean organiser;
-
+    private boolean Organiser;
     private String profilePhotoUrl ;
 
     @OneToMany(mappedBy = "createdBy", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonManagedReference  // <-- Add this
+    @JsonManagedReference
     private List<Event> events;
 }

@@ -1,11 +1,13 @@
 package com.meetmint.meetmint_backend.Service;
 
+import com.meetmint.meetmint_backend.Dto.UserRequestDto;
 import com.meetmint.meetmint_backend.Model.User;
 import com.meetmint.meetmint_backend.Repository.UserRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
@@ -18,6 +20,8 @@ public class JwtService {
 
     private final UserRepository userRepository;
 
+    private String secreteKey=null;
+
     public JwtService( UserRepository userRepository) {
         this.userRepository = userRepository;
     }
@@ -25,7 +29,7 @@ public class JwtService {
     public String generateToken(User UserEmailPassword) {
         User user= userRepository.findByEmail( UserEmailPassword.getEmail());
         HashMap<String,Object>claims=new HashMap<>();
-        claims.put("role", user.isOrganiser());
+        claims.put("role", user.isOrganiser() ? "ADMIN" : "USER");
         return Jwts
                 .builder()
                 .claims()
@@ -33,7 +37,7 @@ public class JwtService {
                 .subject( UserEmailPassword.getEmail())
                 .issuer( UserEmailPassword.getFirstName()+" "+ UserEmailPassword.getLastName())
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis()+60*30*1000))
+                .expiration(new Date(System.currentTimeMillis()+60*60*1000))
                 .and()
                 .signWith(generateKey())
                 .compact();
@@ -45,7 +49,7 @@ public class JwtService {
     }
     public String getSecreteKey()
     {
-        return "CX0PH373LibivzYlzkQAjNKuaHFOyZCTeY7b6vwq+So=";
+        return secreteKey="CX0PH373LibivzYlzkQAjNKuaHFOyZCTeY7b6vwq+So=";
     }
 
     public String extractUserName(String token) {
@@ -67,7 +71,9 @@ public class JwtService {
                 .parseSignedClaims(token)
                 .getPayload();
     }
-
+    public String extractEmail(String token) {
+        return extractUserName(token); // Subject of the token is email
+    }
     public boolean isValidToken(String token, String email) {
         final String userName=extractUserName(token);
         return (userName.equals(email) && !isTokenExpired(token));
@@ -82,7 +88,6 @@ public class JwtService {
     private boolean isTokenExpired(String token) {
         return extracExpiration(token).before(new Date());
     }
-
     private Date extracExpiration(String token) {
         return extractClaims(token,Claims::getExpiration);
     }
